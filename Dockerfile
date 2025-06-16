@@ -37,4 +37,4 @@ RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 # 6. Команда по умолчанию: запускаем через UV (он найдёт ваши зависимости и сам выполнит main.py)
-CMD ["uv", "run", "main.py"]
+CMD ["uv", "run", "app/main.py"]

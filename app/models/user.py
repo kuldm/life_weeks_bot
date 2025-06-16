@@ -4,12 +4,9 @@ from typing import Optional, List
 from sqlalchemy import (
     BigInteger, Boolean, Column, Date, DateTime, ForeignKey, Integer, String, text
 )
-from sqlalchemy.ext.declarative import declarative_base
-
 from sqlalchemy.orm import Mapped, mapped_column
 
-# SQLAlchemy 2.0 Declarative Base
-Base = declarative_base()
+from app.core.database import Base
 
 class User(Base):
     __tablename__ = 'users'

@@ -4,7 +4,7 @@ from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-from settings import settings
+from app.core.config import settings
 
 # from src.logger import logger
 

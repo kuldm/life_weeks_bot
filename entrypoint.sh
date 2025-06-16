@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 set -e
 
 echo "Waiting for Postgres at $DB_HOST:$DB_PORT…"
@@ -12,5 +12,5 @@ echo "\nPostgres is up — running migrations"
 # Запускаем alembic напрямую (не через uv)
 uv run alembic upgrade head
 
-# Пускаем в ход CMD (uv run main.py)
+# Пускаем в ход CMD (uv run app/main.py)
 exec "$@"

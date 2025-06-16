@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15.2-alpine
+    container_name: ${APP_NAME}_db
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5436:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - ./data/:/var/lib/postgresql/data/
+
+
+  life-weeks-bot:
+    build: .
+    container_name: life_weeks_bot
+    restart: unless-stopped
+    env_file:
+      - .env        # подключаем локальный .env с токеном
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

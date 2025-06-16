@@ -1,0 +1,16 @@
+[project]
+name = "life-weeks"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiogram>=3.19.0",
+    "alembic>=1.16.1",
+    "asyncpg>=0.30.0",
+    "dotenv>=0.9.9",
+    "pillow>=11.1.0",
+    "pydantic>=2.10.6",
+    "pydantic-settings>=2.9.1",
+    "sqlalchemy>=2.0.41",
+]

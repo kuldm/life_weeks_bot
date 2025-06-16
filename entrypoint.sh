@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 set -e
 
 echo "Waiting for Postgres at $DB_HOST:$DB_PORT…"

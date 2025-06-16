@@ -31,7 +31,8 @@ COPY . /app
 
 # 8. Копируем скрипт миграции и делаем его исполняемым
 COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+RUN sed -i 's/\r$//' /app/entrypoint.sh \
+    && chmod +x /app/entrypoint.sh
 
 # 9. Скрипт-мигратор запускается первым, затем передаёт управление UV
 ENTRYPOINT ["/app/entrypoint.sh"]

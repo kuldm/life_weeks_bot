@@ -3,8 +3,8 @@ from aiogram import types
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_session
-from models import User
+from app.core.database import get_session
+from app.models.user import User
 
 async def add_or_update_user_data(
     message: types.Message,

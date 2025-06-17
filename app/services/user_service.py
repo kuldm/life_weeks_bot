@@ -23,7 +23,7 @@ async def add_or_update_user_data(
     is_premium = message.from_user.is_premium
     is_bot = message.from_user.is_bot
 
-    async for session in get_session():  # type: AsyncSession
+    async with get_session() as session:
         # Попытка найти существующего пользователя
         result = await session.execute(
             select(User).where(User.telegram_user_id == telegram_user_id)

@@ -3,10 +3,12 @@ set -e
 
 echo "Waiting for Postgres at $DB_HOST:$DB_PORT…"
 # Ждём готовности БД
-until pg_isready -h "$DB_HOST" -p "$DB_PORT" >/dev/null 2>&1; do
+export PGPASSWORD="$DB_PASS"
+until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" >/dev/null 2>&1; do
   echo -n "."
-  sleep 1
+  sleep 10
 done
+unset PGPASSWORD
 echo "\nPostgres is up — running migrations"
 
 # Запускаем alembic напрямую (не через uv)

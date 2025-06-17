@@ -2,7 +2,7 @@
 FROM python:3.13-slim
 
 # Чтобы логи сразу шли в stdout без буферизации
-# ENV PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=1
 
 # Чтобы apt не спрашивал о подтверждении лицензий для ttf-mscorefonts-installer
 ENV DEBIAN_FRONTEND=noninteractive

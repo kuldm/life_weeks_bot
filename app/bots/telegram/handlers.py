@@ -4,7 +4,7 @@ import datetime
 
 from app.services.life_calendar import create_life_calendar_image
 from app.services.user_service import (
-    add_or_update_user_data,
+    add_user,
     get_user_by_telegram_id,
     set_weekly_subscription,
     update_birth_date,
@@ -19,7 +19,7 @@ async def start_command(message: types.Message):
     user = await get_user_by_telegram_id(message.from_user.id)
     if user is None:
         await message.answer(
-            "Привет! Нажми кнопку \"Старт\" и пришли дату рождения в формате ДД.ММ.ГГГГ",
+            "Привет! Пришли дату рождения в формате ДД.ММ.ГГГГ, и я отправлю твой календарь жизни!",
             reply_markup=start_keyboard(),
         )
     else:
@@ -28,10 +28,6 @@ async def start_command(message: types.Message):
             reply_markup=main_keyboard(user.weekly_subscription),
         )
 
-
-@router.message(lambda m: m.text and m.text.lower() == "старт")
-async def start_button(message: types.Message):
-    await message.answer("Отправь дату рождения в формате ДД.ММ.ГГГГ")
 
 
 @router.message(lambda m: m.text and m.text.lower() == "изменить дату рождения")
@@ -45,7 +41,7 @@ async def send_calendar(message: types.Message):
     if not user or not user.birth_date:
         await message.answer("Сначала отправьте дату рождения командой Старт")
         return
-    await _send_calendar_for_user(message, user.birth_date, user.weekly_subscription)
+    await send_calendar_for_user(message, user.birth_date, user.weekly_subscription)
 
 
 @router.message(lambda m: m.text and m.text.lower() == "отключить рассылку")
@@ -78,21 +74,28 @@ async def process_birthdate(message: types.Message):
     if user:
         await update_birth_date(message.from_user.id, birth_date)
     else:
-        await add_or_update_user_data(message, birth_date)
+        await add_user(message, birth_date)
     user = await get_user_by_telegram_id(message.from_user.id)
     subscription = user.weekly_subscription if user else False
-    await _send_calendar_for_user(message, birth_date, subscription)
+    await send_calendar_for_user(message, birth_date, subscription)
 
 
-async def _send_calendar_for_user(message: types.Message, birth_date: datetime.date, subscription: bool) -> None:
+async def send_calendar_for_user(message: types.Message, birth_date: datetime.date, subscription: bool) -> None:
     today = datetime.date.today()
-    try:
-        hundred_birthday = birth_date.replace(year=birth_date.year + 100)
-    except ValueError:
-        hundred_birthday = birth_date.replace(year=birth_date.year + 100, day=28)
 
+
+    # 2) Проверка на будущее
+    if birth_date > today:
+        await message.answer("В будущее заглянуть не удастся!")
+        return
+
+    # 3) Считаем 100-летие
+    hundred_birthday = birth_date.replace(year=birth_date.year + 122)
     if today >= hundred_birthday:
-        await message.answer("Ты уже прожил(а) более 100 лет!")
+        await message.answer("Давайка тоже не заливай!\nСамый долгоживущий человек, чей возраст "
+                             "был подтвержден документально, это француженка Жанна Кальман, которая прожила 122 года и "
+                             "164 дня. Она родилась 21 февраля 1875 года и умерла 4 августа 1997 года.\nНа данный момент"
+                             "самый старый из ныне живущих людей - Томико Итоока из Японии, ей 116 лет.")
         return
 
     total_days = (hundred_birthday - birth_date).days

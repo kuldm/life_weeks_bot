@@ -1,19 +1,16 @@
 from datetime import datetime, date
 from aiogram import types
 from sqlalchemy import select, update
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
 from app.db.models import User
 
 
-async def add_or_update_user_data(
+async def add_user(
         message: types.Message,
         birth_date: date
 ) -> User:
-    """
-    Добавляет нового пользователя или обновляет существующего на основе данных из message и birth_date.
-    """
+    """Добавляет нового пользователя."""
     telegram_user_id = message.from_user.id
     chat_id = message.chat.id
     first_name = message.from_user.first_name or ""
@@ -25,51 +22,21 @@ async def add_or_update_user_data(
     is_bot = message.from_user.is_bot
 
     async with get_session() as session:
-        # Попытка найти существующего пользователя
-        result = await session.execute(
-            select(User).where(User.telegram_user_id == telegram_user_id)
+        user = User(
+            telegram_user_id=telegram_user_id,
+            chat_id=chat_id,
+            first_name=first_name,
+            last_name=last_name,
+            username=username,
+            birth_date=birth_date,
+            timezone=timezone,
+            is_premium=is_premium,
+            is_bot=is_bot,
+            language_code=language_code,
         )
-        user = result.scalar_one_or_none()
-
-        if user:
-            # Обновляем найденного пользователя
-            await session.execute(
-                update(User)
-                .where(User.telegram_user_id == telegram_user_id)
-                .values(
-                    chat_id=chat_id,
-                    first_name=first_name,
-                    last_name=last_name,
-                    username=username,
-                    birth_date=birth_date,
-                    timezone=timezone,
-                    updated_at=datetime.utcnow(),
-                    is_premium=is_premium,
-                    is_bot=is_bot,
-                    language_code=language_code,
-                )
-            )
-            await session.commit()
-            await session.refresh(user)
-        else:
-            # Создаём нового пользователя
-            user = User(
-                telegram_user_id=telegram_user_id,
-                chat_id=chat_id,
-                first_name=first_name,
-                last_name=last_name,
-                username=username,
-                birth_date=birth_date,
-                timezone=timezone,
-                is_premium=is_premium,
-                is_bot=is_bot,
-                language_code=language_code,
-            )
-            session.add(user)
-            await session.commit()
-            await session.refresh(user)
-
-        return user
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
 
 
 async def get_user_by_telegram_id(telegram_user_id: int) -> User | None:

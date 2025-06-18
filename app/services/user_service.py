@@ -6,9 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_session
 from app.db.models import User
 
+
 async def add_or_update_user_data(
-    message: types.Message,
-    birth_date: date
+        message: types.Message,
+        birth_date: date
 ) -> User:
     """
     Добавляет нового пользователя или обновляет существующего на основе данных из message и birth_date.
@@ -20,7 +21,7 @@ async def add_or_update_user_data(
     username = message.from_user.username or ""
     timezone = message.from_user.language_code or "UTC"
     language_code = message.from_user.language_code or ""
-    is_premium = message.from_user.is_premium
+    is_premium = message.from_user.is_premium or False
     is_bot = message.from_user.is_bot
 
     async with get_session() as session:
@@ -42,10 +43,10 @@ async def add_or_update_user_data(
                     username=username,
                     birth_date=birth_date,
                     timezone=timezone,
-                    language_code=language_code,
+                    updated_at=datetime.utcnow(),
                     is_premium=is_premium,
                     is_bot=is_bot,
-                    updated_at=datetime.utcnow(),
+                    language_code=language_code,
                 )
             )
             await session.commit()
@@ -70,6 +71,7 @@ async def add_or_update_user_data(
 
         return user
 
+
 async def get_user_by_telegram_id(telegram_user_id: int) -> User | None:
     """Возвращает пользователя по Telegram ID, если он существует."""
     async with get_session() as session:
@@ -88,12 +90,12 @@ async def set_weekly_subscription(telegram_user_id: int, value: bool) -> None:
         await session.commit()
 
 
-async def update_user_birthday(telegram_user_id: int, value: bool) -> None:
-    """Изменяет значение дня рождения для пользователя."""
+async def update_birth_date(telegram_user_id: int, birth_date: date) -> None:
+    """Изменяет дату рождения пользователя."""
     async with get_session() as session:
         await session.execute(
             update(User)
             .where(User.telegram_user_id == telegram_user_id)
-            .values(birth_date=value, updated_at=datetime.utcnow())
+            .values(birth_date=birth_date, updated_at=datetime.utcnow())
         )
         await session.commit()

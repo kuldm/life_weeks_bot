@@ -7,6 +7,7 @@ from app.services.user_service import (
     add_or_update_user_data,
     get_user_by_telegram_id,
     set_weekly_subscription,
+    update_birth_date,
 )
 from .keyboards import start_keyboard, main_keyboard
 
@@ -73,7 +74,11 @@ async def process_birthdate(message: types.Message):
         await message.answer("Неверный формат даты. Пожалуйста, используй формат ДД.ММ.ГГГГ.")
         return
 
-    await add_or_update_user_data(message, birth_date)
+    user = await get_user_by_telegram_id(message.from_user.id)
+    if user:
+        await update_birth_date(message.from_user.id, birth_date)
+    else:
+        await add_or_update_user_data(message, birth_date)
     user = await get_user_by_telegram_id(message.from_user.id)
     subscription = user.weekly_subscription if user else False
     await _send_calendar_for_user(message, birth_date, subscription)

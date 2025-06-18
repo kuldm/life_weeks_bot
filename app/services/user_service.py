@@ -89,7 +89,7 @@ async def set_weekly_subscription(telegram_user_id: int, value: bool) -> None:
 
 
 async def update_user_birthday(telegram_user_id: int, value: bool) -> None:
-    """Изменяет значение флага weekly_subscription для пользователя."""
+    """Изменяет значение дня рождения для пользователя."""
     async with get_session() as session:
         await session.execute(
             update(User)

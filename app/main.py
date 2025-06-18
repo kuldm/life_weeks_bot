@@ -21,7 +21,7 @@ async def main():
 
 
 if __name__ == '__main__':
+    pydevd_pycharm.settrace('host.docker.internal', port=12345, stdoutToServer=True, stderrToServer=True, suspend=False)
     print("Бот запущен")
     asyncio.run(main())
 
-pydevd_pycharm.settrace('host.docker.internal', port=12345, stdoutToServer=True, stderrToServer=True, suspend=False)

@@ -6,7 +6,7 @@ echo "Waiting for Postgres at $DB_HOST:$DB_PORT…"
 export PGPASSWORD="$DB_PASS"
 until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" >/dev/null 2>&1; do
   echo -n "."
-  # sleep 10
+   sleep 1
 done
 unset PGPASSWORD
 echo "\nPostgres is up — running migrations"

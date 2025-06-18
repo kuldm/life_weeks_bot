@@ -1,4 +1,6 @@
 import asyncio
+import pydevd_pycharm
+
 
 from aiogram import Bot, Dispatcher
 
@@ -21,3 +23,5 @@ async def main():
 if __name__ == '__main__':
     print("Бот запущен")
     asyncio.run(main())
+
+pydevd_pycharm.settrace('host.docker.internal', port=12345, stdoutToServer=True, stderrToServer=True, suspend=False)

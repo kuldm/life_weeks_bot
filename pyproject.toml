@@ -10,7 +10,9 @@ dependencies = [
     "asyncpg>=0.30.0",
     "dotenv>=0.9.9",
     "pillow>=11.1.0",
+    "pip>=25.1.1",
     "pydantic>=2.10.6",
     "pydantic-settings>=2.9.1",
+    "pydevd-pycharm>=252.21735.39",
     "sqlalchemy>=2.0.41",
 ]

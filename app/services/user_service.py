@@ -69,3 +69,31 @@ async def add_or_update_user_data(
             await session.refresh(user)
 
         return user
+
+async def get_user_by_telegram_id(telegram_user_id: int) -> User | None:
+    """Возвращает пользователя по Telegram ID, если он существует."""
+    async with get_session() as session:
+        result = await session.execute(select(User).where(User.telegram_user_id == telegram_user_id))
+        return result.scalar_one_or_none()
+
+
+async def set_weekly_subscription(telegram_user_id: int, value: bool) -> None:
+    """Изменяет значение флага weekly_subscription для пользователя."""
+    async with get_session() as session:
+        await session.execute(
+            update(User)
+            .where(User.telegram_user_id == telegram_user_id)
+            .values(weekly_subscription=value, updated_at=datetime.utcnow())
+        )
+        await session.commit()
+
+
+async def update_user_birthday(telegram_user_id: int, value: bool) -> None:
+    """Изменяет значение флага weekly_subscription для пользователя."""
+    async with get_session() as session:
+        await session.execute(
+            update(User)
+            .where(User.telegram_user_id == telegram_user_id)
+            .values(birth_date=value, updated_at=datetime.utcnow())
+        )
+        await session.commit()

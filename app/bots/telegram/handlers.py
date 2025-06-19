@@ -9,6 +9,7 @@ from app.services.user_service import (
     get_user_by_telegram_id,
     set_weekly_subscription,
     update_birth_date,
+    validate_birth_date,
 )
 from .keyboards import start_keyboard, main_keyboard
 
@@ -70,6 +71,10 @@ async def process_birthdate(message: types.Message):
     except ValueError:
         await message.answer("Неверный формат даты. Пожалуйста, используй формат ДД.ММ.ГГГГ.")
         return
+    error_msg = await validate_birth_date(birth_date)
+    if error_msg:
+        await message.answer(error_msg)
+        return
 
     user = await get_user_by_telegram_id(message.from_user.id)
     if user:
@@ -82,19 +87,13 @@ async def process_birthdate(message: types.Message):
 
 
 async def send_calendar_for_user(message: types.Message, birth_date: datetime.date, subscription: bool) -> None:
+    error_msg = await validate_birth_date(birth_date)
+    if error_msg:
+        await message.answer(error_msg)
+        return
+
     today = datetime.date.today()
-
-    if birth_date > today:
-        await message.answer("В будущее заглянуть не удастся!")
-        return
-
-    hundred_birthday = birth_date.replace(year=birth_date.year + 122)
-    if today >= hundred_birthday:
-        await message.answer("Давайка тоже не заливай!\nСамый долгоживущий человек, чей возраст "
-                             "был подтвержден документально, это француженка Жанна Кальман, которая прожила 122 года и "
-                             "164 дня. Она родилась 21 февраля 1875 года и умерла 4 августа 1997 года.\nНа данный момент"
-                             "самый старый из ныне живущих людей - Томико Итоока из Японии, ей 116 лет.")
-        return
+    hundred_birthday = birth_date.replace(year=birth_date.year + 100)
 
     total_days = (hundred_birthday - birth_date).days
     total_weeks = total_days // 7

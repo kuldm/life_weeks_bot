@@ -1,6 +1,8 @@
 from datetime import datetime, date
+import datetime as dt
 from aiogram import types
 from sqlalchemy import select, update
+from typing import Optional
 
 from app.core.database import get_session
 from app.db.models import User
@@ -66,3 +68,32 @@ async def update_birth_date(telegram_user_id: int, birth_date: date) -> None:
             .values(birth_date=birth_date, updated_at=datetime.utcnow())
         )
         await session.commit()
+
+
+async def years_word(age: int) -> str:
+    """Возвращает нужное слово для лет: год, года или лет."""
+    if age % 10 == 1 and age % 100 != 11:
+        return "год"
+    if age % 10 in (2, 3, 4) and age % 100 not in (12, 13, 14):
+        return "года"
+    return "лет"
+
+
+async def validate_birth_date(birth_date: datetime.date) -> Optional[str]:
+    """Проверяет корректность даты рождения. Возвращает None, если дата валидна, иначе строку с текстом ошибки."""
+    today = dt.date.today()
+    age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+    age_str = f"{age} {await years_word(age)}"
+    if birth_date > today:
+        return "В будущее заглянуть не удастся!"
+
+    hundred_twenty_two_birthday = birth_date.replace(year=birth_date.year + 122)
+    if today >= hundred_twenty_two_birthday:
+        return (
+            f"{age_str}, ага. Давайка тоже не заливай! \n"
+            "Самый долгоживущий человек, чей возраст был подтвержден документально, "
+            "это француженка Жанна Кальман, которая прожила 122 года и 164 дня. "
+            "Она родилась 21 февраля 1875 года и умерла 4 августа 1997 года.\n"
+            "На данный момент самый старый из ныне живущих людей - Томико Итоока из Японии, ей 116 лет."
+        )
+    return None

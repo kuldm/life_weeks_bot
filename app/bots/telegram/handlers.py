@@ -1,5 +1,6 @@
 from aiogram import Router, types
 from aiogram.filters import Command
+from aiogram import F
 import datetime
 
 from app.services.life_calendar import create_life_calendar_image
@@ -30,12 +31,12 @@ async def start_command(message: types.Message):
 
 
 
-@router.message(lambda m: m.text and m.text.lower() == "изменить дату рождения")
+@router.message(F.text == "🎂 Изменить дату рождения")
 async def change_birthdate(message: types.Message):
     await message.answer("Пришли новую дату рождения в формате ДД.ММ.ГГГГ")
 
 
-@router.message(lambda m: m.text and m.text.lower() == "отправить календарь")
+@router.message(F.text == "📅 Отправить календарь")
 async def send_calendar(message: types.Message):
     user = await get_user_by_telegram_id(message.from_user.id)
     if not user or not user.birth_date:
@@ -44,7 +45,7 @@ async def send_calendar(message: types.Message):
     await send_calendar_for_user(message, user.birth_date, user.weekly_subscription)
 
 
-@router.message(lambda m: m.text and m.text.lower() == "отключить рассылку")
+@router.message(F.text == "🔕 Отключить рассылку")
 async def disable_subscription(message: types.Message):
     await set_weekly_subscription(message.from_user.id, False)
     await message.answer(
@@ -53,7 +54,7 @@ async def disable_subscription(message: types.Message):
     )
 
 
-@router.message(lambda m: m.text and m.text.lower() == "подключить рассылку")
+@router.message(F.text == "🔔 Подключить рассылку")
 async def enable_subscription(message: types.Message):
     await set_weekly_subscription(message.from_user.id, True)
     await message.answer(
@@ -83,13 +84,10 @@ async def process_birthdate(message: types.Message):
 async def send_calendar_for_user(message: types.Message, birth_date: datetime.date, subscription: bool) -> None:
     today = datetime.date.today()
 
-
-    # 2) Проверка на будущее
     if birth_date > today:
         await message.answer("В будущее заглянуть не удастся!")
         return
 
-    # 3) Считаем 100-летие
     hundred_birthday = birth_date.replace(year=birth_date.year + 122)
     if today >= hundred_birthday:
         await message.answer("Давайка тоже не заливай!\nСамый долгоживущий человек, чей возраст "
